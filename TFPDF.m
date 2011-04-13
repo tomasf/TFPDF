@@ -10,19 +10,45 @@
 
 id TFPDFObjectFromCGPDFObject(CGPDFObjectRef source) {
 	CGPDFObjectType type = CGPDFObjectGetType(source);
-	void *value = NULL;
-	CGPDFObjectGetValue(source, type, &value);
+	void *pointer;
+	CGPDFBoolean boolean;
+	CGPDFInteger integer;
+	CGPDFReal real;
 	
 	switch(type) {
-		case kCGPDFObjectTypeDictionary: return [[[TFPDFDictionary alloc] initWithCGPDFDictionary:(CGPDFDictionaryRef)value] autorelease];
-		case kCGPDFObjectTypeArray: return [[[TFPDFArray alloc] initWithCGPDFArray:(CGPDFArrayRef)value] autorelease];
-		case kCGPDFObjectTypeStream: return [[[TFPDFStream alloc] initWithCGPDFStream:(CGPDFStreamRef)value] autorelease];
 		case kCGPDFObjectTypeNull: return [NSNull null];
-		case kCGPDFObjectTypeBoolean: return [NSNumber numberWithBool:*(CGPDFBoolean*)value];
-		case kCGPDFObjectTypeInteger: return [NSNumber numberWithInteger:*(CGPDFInteger*)value];
-		case kCGPDFObjectTypeReal: return [NSNumber numberWithDouble:*(CGPDFReal*)value];
-		case kCGPDFObjectTypeName: return [NSString stringWithUTF8String:(char*)value];
-		case kCGPDFObjectTypeString: return [(id)CGPDFStringCopyTextString((CGPDFStringRef)value) autorelease];
+			
+		case kCGPDFObjectTypeDictionary:
+			CGPDFObjectGetValue(source, type, &pointer);
+			return [[[TFPDFDictionary alloc] initWithCGPDFDictionary:(CGPDFDictionaryRef)pointer] autorelease];
+			
+		case kCGPDFObjectTypeArray:
+			CGPDFObjectGetValue(source, type, &pointer);
+			return [[[TFPDFArray alloc] initWithCGPDFArray:(CGPDFArrayRef)pointer] autorelease];
+			
+		case kCGPDFObjectTypeStream:
+			CGPDFObjectGetValue(source, type, &pointer);
+			return [[[TFPDFStream alloc] initWithCGPDFStream:(CGPDFStreamRef)pointer] autorelease];
+			
+		case kCGPDFObjectTypeBoolean:
+			CGPDFObjectGetValue(source, type, &boolean);
+			return [NSNumber numberWithBool:boolean];
+			
+		case kCGPDFObjectTypeInteger: 
+			CGPDFObjectGetValue(source, type, &integer);
+			return [NSNumber numberWithLong:integer];
+			
+		case kCGPDFObjectTypeReal:
+			CGPDFObjectGetValue(source, type, &real);
+			return [NSNumber numberWithDouble:real];
+			
+		case kCGPDFObjectTypeName:
+			CGPDFObjectGetValue(source, type, &pointer);
+			return [NSString stringWithUTF8String:(char*)pointer];
+			
+		case kCGPDFObjectTypeString:
+			CGPDFObjectGetValue(source, type, &pointer);
+			return [(id)CGPDFStringCopyTextString((CGPDFStringRef)pointer) autorelease];
 	}
 	return nil;
 }
